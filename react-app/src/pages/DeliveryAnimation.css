@@ -1,0 +1,54 @@
+/* .animation-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 70vh;
+}
+
+.burger-truck {
+    font-size: 50px;
+    position: absolute;
+    left: 0;
+    transition-timing-function: linear;
+    transform: translateX(0);
+}
+
+.burger-truck.move {
+    transform: translateX(1200px); 
+} 
+ */
+
+
+ .animation-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 70vh;
+    position: relative; 
+}
+
+.burger-truck {
+    font-size: 50px;
+    position: absolute;
+    left: 0;
+    z-index: 10; 
+    transition: transform 1s linear;
+}
+
+.burger-truck.move {
+    transform: translateX(1200px); 
+}
+
+h2 {
+    font-size: 24px;
+    color: green;
+    z-index: 10;
+}
+
+.Map-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1; 
+}
+
