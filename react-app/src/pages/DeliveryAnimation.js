@@ -1,139 +1,72 @@
-// import React, { useState, useEffect } from 'react';
-// import './DeliveryAnimation.css';
-// import { useLocation } from 'react-router-dom';
-
-// function DeliveryAnimation() {
-//     const location = useLocation();
-//     const shouldMove = location.state?.moveBurger || false;
-//     const deliveryTime = location.state?.deliveryTime || 20
-
-//     const [moveBurger, setMoveBurger] = useState(false);
-//     const [delivered, setDelivered] = useState(false);
-
-//     useEffect(() => {
-//         if (shouldMove) {
-//             setTimeout(() => {
-//                 setMoveBurger(true);
-//             }, 2000); 
-//         }
-//     }, [shouldMove]);
-
-//     useEffect(() => {
-//         const timer = setTimeout(() => {
-//             setDelivered(true);
-//         }, 20);
-//         return () => clearTimeout(timer);
-//     }, []);
-
-//     return (
-//         <div className="animation-container">
-//             {!delivered ? (
-//                 <div className={`burger-truck ${moveBurger ? 'move' : ''}`}>🍔</div>
-//             ) : (
-//                 <h2>Your order is delivered</h2>
-//             )}
-//         </div>
-//     );
-// }
-
-// export default DeliveryAnimation;
-
-
-
-
-
-
-
-
-
-
-
-import React, { useState, useEffect } from 'react';
-import './DeliveryAnimation.css';
+import React, { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
+import L from 'leaflet';
 import { useLocation } from 'react-router-dom';
-import Map from "../components/Map";
+import 'leaflet/dist/leaflet.css';
+import './DeliveryAnimation.css';
+
+// Иконка бургера
+const burgerIcon = new L.DivIcon({
+  className: 'custom-burger-icon',
+  html: '🍔',
+  iconSize: [30, 30],
+  iconAnchor: [15, 15],
+});
 
 function DeliveryAnimation() {
+  const location = useLocation();
+  const shouldMove = location.state?.moveBurger || false;
 
-    const restaurantCoordinates = {
-        lat: 60.2955,
-        Ing: 25.0328
-    }
+  const restaurant = [60.2940, 25.0375]; // McDonald's Tikkurila
+  const destination = [60.2940, 25.0375]; // Lincolninaukio 3 B, Kivistö
 
-    const location = useLocation();
-    const shouldMove = location.state?.moveBurger || false;
-    const deliveryTime = location.state?.deliveryTime || 20;
+  const [position, setPosition] = useState(restaurant);
+  const [delivered, setDelivered] = useState(false);
 
-    const [moveBurger, setMoveBurger] = useState(false);
-    const [delivered, setDelivered] = useState(false);
+  useEffect(() => {
+    if (!shouldMove) return;
 
-    const [burgerPosition, setBurgerPosition] = useState(restaurantCoordinates)
+    let index = 0;
+    const steps = 200;
+    const latStep = (destination[0] - restaurant[0]) / steps;
+    const lngStep = (destination[1] - restaurant[1]) / steps;
 
-    const moveBurgerToDestination = () => {
+    const interval = setInterval(() => {
+      index++;
+      setPosition([
+        restaurant[0] + latStep * index,
+        restaurant[1] + lngStep * index,
+      ]);
 
-        const newPosition = {
+      if (index >= steps) {
+        clearInterval(interval);
+        setDelivered(true);
+      }
+    }, 100);
 
-            lat: burgerPosition.lat + 0.001,
-            Ing: burgerPosition.Ing + 0.001
-        }
+    return () => clearInterval(interval);
+  }, [shouldMove]);
 
-        setBurgerPosition(newPosition)
-    }
-
-    useEffect(() => {
-
-        const interval = setInterval(() => {
-
-            moveBurgerToDestination()
-        }, 1000)
-    }, [])
-
-    useEffect(() => {
-        if (shouldMove) {
-            setTimeout(() => {
-                setMoveBurger(true);
-            }, 100); 
-        }
-    }, [shouldMove]);
-
-    useEffect(() => {
-        const ms = deliveryTime * 60 * 1000;
-        const timer = setTimeout(() => {
-            setDelivered(true);
-        }, ms);
-        return () => clearTimeout(timer);
-    }, [deliveryTime]);
-
-    return (
-        <div className="animation-container">
-            {!delivered ? (
-                <div
-                    className={`burger-truck ${moveBurger ? 'move' : ''}`}
-                    style={{ transitionDuration: `${deliveryTime * 60}s` }}
-                >
-                    🍔
-                </div>
-            ) : (
-                <h2>Your order is delivered</h2>
-            )}
-
-            <Map />
-
-        </div>
-    );
+  return (
+    <div className="animation-map">
+      <MapContainer center={restaurant} zoom={12} scrollWheelZoom={false} style={{ height: '70vh', width: '100%' }}>
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <Marker position={restaurant}>
+          <div>🥤 McDonald's</div>
+        </Marker>
+        <Marker position={destination}>
+          <div>🏠 Your home</div>
+        </Marker>
+        <Polyline positions={[restaurant, destination]} color="red" />
+        {!delivered && (
+          <Marker position={position} icon={burgerIcon} />
+        )}
+      </MapContainer>
+      {delivered && <h2 className="delivered-text">Your order is delivered!</h2>}
+    </div>
+  );
 }
 
 export default DeliveryAnimation;
-
-
-
-
-
-
-
-
-
-
-
-
-
