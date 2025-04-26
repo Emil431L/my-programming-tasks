@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import './Delivery.css';
 
 function Delivery() {
-
     const navigate = useNavigate();
     const location = useLocation();
     const burger = location.state?.burger;
@@ -23,7 +22,7 @@ function Delivery() {
         }
 
         if (name && card) {
-            navigate('/delivery-animation', {state: {moveBurger: true, deliveryTime}});  
+            navigate('/delivery-animation', {state: {moveBurger: true, deliveryTime: deliveryTime}});  
         } else {
             alert('Enter name and card number');  
         }
@@ -67,4 +66,3 @@ function Delivery() {
 }
 
 export default Delivery;
-
